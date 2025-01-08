@@ -86,7 +86,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     ServAddr.sin_port = htons(ServPort);
 
     // Connect to the server
-    while (connect(sock, (struct sockaddr*)&ServAddr, sizeof(ServAddr)) != 0) {
+    while (connect(soc k, (struct sockaddr*)&ServAddr, sizeof(ServAddr)) != 0) {
         Sleep(1000); // Sleep for 1 second to avoid excessive CPU usage
     }
 
