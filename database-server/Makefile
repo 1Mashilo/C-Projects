@@ -1,13 +1,18 @@
-flags=-Wall -O2 -std=c2x
-ldflags=
+CC = gcc
+CFLAGS = -Wall -O2 -std=c2x
+LDFLAGS =
 
-all: tree
+SRC = main.c btree.c database.c
+OBJ = $(SRC:.c=.o)
+EXEC = database_server
 
-tree: tree.o
-	cc ${flags} $^ -o $@ ${ldflags}
+all: $(EXEC)
 
-tree.o: tree.c
-	cc ${flags} -c $^ -o $@
+$(EXEC): $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o tree
+	rm -f $(OBJ) $(EXEC)
