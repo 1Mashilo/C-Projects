@@ -1,29 +1,49 @@
-// File: database.h
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include "btree.h"
+#include <stddef.h>
+#include <stdbool.h>
 
-// Data entry structure
+#define MAX_NAME_LEN 100
+
+typedef struct {
+    char name[MAX_NAME_LEN];
+    char type[20]; // Example: "int", "char", etc.
+} ColumnMetadata;
+
 typedef struct {
     int id;
-    char name[100];
-    char value[256]; // Can store additional data fields
-} DataEntry;
+    char name[MAX_NAME_LEN];
+    char **values; // Add this field to store column values
+} Row;
 
-// Database structure
-typedef struct Database {
-    struct Node* root; // Pointer to the root of the B-Tree for indexing
-    int table_count;   // Number of tables
-    char **table_names; // List of table names
+typedef struct {
+    size_t row_count;
+    size_t capacity;
+    Row *rows;
+    void *index;
+    struct {
+        char name[50];
+        int column_count;
+        ColumnMetadata *columns;
+    } metadata;
+} Table;
+
+typedef struct {
+    int table_count;
+    Table *tables;
 } Database;
 
-// Function declarations
+// Function prototypes
 Database* create_database();
-void insert_entry(Database* db, int id, const char* name, const char* value);
-void delete_entry(Database* db, int id);
-DataEntry* search_entry(Database* db, int id);
-void free_database(Database* db);
-void display_metadata(Database* db);
+void free_database(Database *db);
+Table* create_table(Database *db, const char *table_name, int column_count, ColumnMetadata *columns);
+void free_table(Table *table);
+bool insert_row(Table *table, int id, const char *name);
+void insert_row_with_values(Table *table, char **values);
+Row* search_row(Table *table, int id);
+void delete_row(Table *table, int id);
+void save_table(Table *table, const char *data_file, const char *index_file);
+void load_table(Table *table, const char *data_file, const char *index_file);
 
 #endif // DATABASE_H
