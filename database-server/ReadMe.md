@@ -1,44 +1,45 @@
-# Database Server Project
+# Database Server
 
-## Overview
+This project implements a simple database server in C, featuring a B-tree index for efficient query performance and persistent storage.
 
-This project is a simple database server implemented in C. It uses a binary tree for efficient data storage and retrieval. The server supports basic CRUD operations and ensures data integrity through transaction management.
+## Key Features
 
-## Features
+- **Persistent Storage:**
+  - Store data permanently using:
+    - File storage: Serialize the B-tree data structure to a file (JSON, binary, or CSV).
+    - Database file format: Use a format like SQLite with raw file handling.
+  - Add functions to load the database from storage when the server starts and save it when the server shuts down.
 
-- **Data Structures:**
-  - **Tables:** Represent data using arrays or linked lists to store rows and columns.
-  - **Indexes:** Use data structures like B-trees to quickly locate specific records.
-  - **Metadata:** Store information about tables, columns, data types, and constraints.
+- **Server/Client Communication:**
+  - Use sockets to allow clients to communicate with the database server over a network.
+  - Accept commands over TCP (e.g., through `nc` or custom client tools).
 
-- **File Storage:**
-  - **File System Interaction:** Use standard C functions like `fopen`, `fwrite`, `fread` to read and write data to files.
-  - **Data Serialization:** Implement a method to convert data structures into a format that can be stored in files (e.g., JSON, custom binary format).
+- **Query Language:**
+  - Implement a simple query language to interact with the database.
 
-- **Query Parsing:**
-  - **Lexical Analysis:** Break down the query into tokens (SELECT, FROM, WHERE, etc.)
-  - **Syntax Analysis:** Check if the token sequence follows the query language grammar.
-  - **Semantic Analysis:** Validate the meaning of the query (table existence, column types).
+- **Memory Management:**
+  - Ensure proper memory allocation and deallocation to avoid memory leaks.
+  - Use Valgrind to detect and fix memory leaks.
 
-- **CRUD Operations:**
-  - **Create (INSERT):** Add new rows to a table.
-  - **Read (SELECT):** Retrieve data based on query conditions.
-  - **Update (UPDATE):** Modify existing data in a table.
-  - **Delete (DELETE):** Remove rows from a table.
+## Alternatives to Building from Scratch
 
-- **Important Considerations:**
-  - **Concurrency:** Implement mechanisms to handle multiple concurrent requests to the database (e.g., using threads or mutexes).
-  - **Transaction Management:** Ensure data integrity by supporting ACID properties (Atomicity, Consistency, Isolation, Durability) with transactions.
-  - **Performance Optimization:** Pay attention to data access patterns, indexing strategies, and efficient file I/O to optimize query performance.
+- **Database Libraries:**
+  - **SQLite:** A lightweight embedded database that can be integrated directly into your C application.
+  - **ODBC (Open Database Connectivity):** A standard API for accessing various databases from C applications.
 
-- **Alternatives to Building from Scratch:**
-  - **Database Libraries:**
-    - **SQLite:** A lightweight embedded database that can be integrated directly into your C application.
-    - **ODBC (Open Database Connectivity):** A standard API for accessing various databases from C applications.
+## Memory Management
 
-## Building the Project
+To ensure proper memory management, the following functions have been implemented:
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/yourusername/database-server.git
-   cd database-server
+- **`createNode`**: Allocates memory for a new B-tree node.
+- **`insert`**: Inserts a key into the B-tree and ensures memory is properly allocated.
+- **`deleteNode`**: Deletes a key from the B-tree and frees the associated memory.
+- **`freeTree`**: Frees the entire B-tree.
+- **`free_database`**: Frees the database, including all tables and the B-tree index.
+
+### Using Valgrind
+
+Valgrind is used to detect memory leaks and ensure proper memory management. To run Valgrind, use the following command:
+
+```sh
+valgrind --leak-check=full ./database_server
