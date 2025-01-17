@@ -43,6 +43,7 @@ bool insert_row(Table *table, int id, const char *name);
 void insert_row_with_values(Table *table, char **values);
 Row* search_row(Table *table, int id);
 void delete_row(Table *table, int id);
+void update_row(Table *table, int id, char **values); // New function prototype
 void save_table(Table *table, const char *data_file, const char *index_file);
 void load_table(Table *table, const char *data_file, const char *index_file);
 
