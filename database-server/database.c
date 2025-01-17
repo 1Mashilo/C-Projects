@@ -35,8 +35,8 @@ Table* create_table(Database *db, const char *table_name, int column_count, Colu
     table->metadata.columns = (ColumnMetadata *)malloc(column_count * sizeof(ColumnMetadata));
     memcpy(table->metadata.columns, columns, column_count * sizeof(ColumnMetadata));
 
-    db->tables = table;
-    db->table_count = 1;
+    db->tables = (Table *)realloc(db->tables, (db->table_count + 1) * sizeof(Table));
+    db->tables[db->table_count++] = *table;
 
     return table;
 }
@@ -54,7 +54,7 @@ void free_table(Table *table) {
         }
         free(table->rows);
         free(table->metadata.columns);
-        free(table);
+        freeTree(table->index); // Free the B-tree index
     }
 }
 
@@ -179,6 +179,43 @@ void delete_row(Table *table, int id) {
     table->index = deleteNode(table->index, id);
 
     printf("Row with ID %d deleted from table '%s'.\n", id, table->metadata.name);
+}
+
+// Update a row by ID
+void update_row(Table *table, int id, char **values) {
+    Row *row = search_row(table, id);
+    if (!row) {
+        printf("Row with ID %d not found in table '%s'.\n", id, table->metadata.name);
+        return;
+    }
+
+    // Free the existing values
+    for (int i = 0; i < table->metadata.column_count; i++) {
+        free(row->values[i]);
+    }
+    free(row->values);
+
+    // Allocate memory for the new values array
+    row->values = (char**)malloc(table->metadata.column_count * sizeof(char*));
+    if (!row->values) {
+        fprintf(stderr, "Failed to allocate memory for row values\n");
+        return;
+    }
+
+    // Copy the new values
+    for (int i = 0; i < table->metadata.column_count; i++) {
+        row->values[i] = strdup(values[i]);
+        if (!row->values[i]) {
+            fprintf(stderr, "Failed to allocate memory for row value\n");
+            for (int j = 0; j < i; j++) {
+                free(row->values[j]);
+            }
+            free(row->values);
+            return;
+        }
+    }
+
+    printf("Row with ID %d updated in table '%s'.\n", id, table->metadata.name);
 }
 
 // Save the table to files
