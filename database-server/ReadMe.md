@@ -4,42 +4,63 @@ This project implements a simple database server in C, featuring a B-tree index 
 
 ## Key Features
 
-- **Persistent Storage:**
-  - Store data permanently using:
-    - File storage: Serialize the B-tree data structure to a file (JSON, binary, or CSV).
-    - Database file format: Use a format like SQLite with raw file handling.
-  - Add functions to load the database from storage when the server starts and save it when the server shuts down.
+- **Table Management:**
+  - Create tables with specified columns.
+  - Insert rows into tables.
+  - Delete rows from tables.
+  - Update rows in tables.
+  - Search for rows by ID.
+  - Display all rows in a table.
 
-- **Server/Client Communication:**
-  - Use sockets to allow clients to communicate with the database server over a network.
-  - Accept commands over TCP (e.g., through `nc` or custom client tools).
+- **B-tree Index:**
+  - Efficiently index rows by ID for fast search operations.
 
-- **Query Language:**
-  - Implement a simple query language to interact with the database.
+## Current Features
 
-- **Memory Management:**
-  - Ensure proper memory allocation and deallocation to avoid memory leaks.
-  - Use Valgrind to detect and fix memory leaks.
+1. **Create Database:**
+   - Initialize a new database.
 
-## Alternatives to Building from Scratch
+2. **Create Table:**
+   - Create a new table with specified columns.
 
-- **Database Libraries:**
-  - **SQLite:** A lightweight embedded database that can be integrated directly into your C application.
-  - **ODBC (Open Database Connectivity):** A standard API for accessing various databases from C applications.
+3. **Insert Row:**
+   - Insert rows into a table with specified values.
 
-## Memory Management
+4. **Delete Row:**
+   - Delete rows from a table by ID.
 
-To ensure proper memory management, the following functions have been implemented:
+5. **Update Row:**
+   - Update the values of an existing row by ID.
 
-- **`createNode`**: Allocates memory for a new B-tree node.
-- **`insert`**: Inserts a key into the B-tree and ensures memory is properly allocated.
-- **`deleteNode`**: Deletes a key from the B-tree and frees the associated memory.
-- **`freeTree`**: Frees the entire B-tree.
-- **`free_database`**: Frees the database, including all tables and the B-tree index.
+6. **Search Row:**
+   - Search for a row by ID.
 
-### Using Valgrind
+7. **Display Table:**
+   - Display all rows in a table.
 
-Valgrind is used to detect memory leaks and ensure proper memory management. To run Valgrind, use the following command:
+## Next Steps
 
-```sh
-valgrind --leak-check=full ./database_server
+1. **Persistent Storage:**
+   - Store data permanently using:
+     - File storage: Serialize the B-tree data structure to a file (JSON, binary, or CSV).
+     - Database file format: Use a format like SQLite with raw file handling.
+   - Add functions to load the database from storage when the server starts and save it when the server shuts down.
+
+2. **Server/Client Communication:**
+   - Use sockets to allow clients to communicate with the database server over a network.
+   - Accept commands over TCP (e.g., through `nc` or custom client tools).
+
+3. **Query Language:**
+   - Implement a simple query language to interact with the database.
+
+4. **Transaction Support:**
+   - Add support for transactions to ensure data integrity.
+
+5. **Advanced Indexing:**
+   - Improve indexing to support more complex queries and faster search operations.
+
+## How to Run
+
+1. Compile the project:
+   ```sh
+   gcc -Wall -O2 -std=c2x -g -o database_server main.c btree.c database.c
