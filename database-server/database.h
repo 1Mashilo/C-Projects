@@ -31,7 +31,7 @@ typedef struct {
 
 typedef struct {
     int table_count;
-    Table *tables;
+    Table **tables; // Array of pointers to Table structures
 } Database;
 
 // Function prototypes
@@ -39,12 +39,13 @@ Database* create_database();
 void free_database(Database *db);
 Table* create_table(Database *db, const char *table_name, int column_count, ColumnMetadata *columns);
 void free_table(Table *table);
-bool insert_row(Table *table, int id, const char *name);
+bool insert_row(Table *table, int id, const char *name, int age);
 void insert_row_with_values(Table *table, char **values);
 Row* search_row(Table *table, int id);
 void delete_row(Table *table, int id);
 void update_row(Table *table, int id, char **values); // New function prototype
 void save_table(Table *table, const char *data_file, const char *index_file);
 void load_table(Table *table, const char *data_file, const char *index_file);
+void display_table(Table *table); // Add this prototype
 
 #endif // DATABASE_H
