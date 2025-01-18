@@ -33,10 +33,21 @@ Table* create_table(Database *db, const char *table_name, int column_count, Colu
     strncpy(table->metadata.name, table_name, sizeof(table->metadata.name) - 1);
     table->metadata.column_count = column_count;
     table->metadata.columns = (ColumnMetadata *)malloc(column_count * sizeof(ColumnMetadata));
+    if (!table->metadata.columns) {
+        free(table->rows);
+        free(table);
+        return NULL;
+    }
     memcpy(table->metadata.columns, columns, column_count * sizeof(ColumnMetadata));
 
-    db->tables = (Table *)realloc(db->tables, (db->table_count + 1) * sizeof(Table));
-    db->tables[db->table_count++] = *table;
+    db->tables = (Table **)realloc(db->tables, (db->table_count + 1) * sizeof(Table*));
+    if (!db->tables) {
+        free(table->metadata.columns);
+        free(table->rows);
+        free(table);
+        return NULL;
+    }
+    db->tables[db->table_count++] = table;
 
     return table;
 }
@@ -55,6 +66,7 @@ void free_table(Table *table) {
         free(table->rows);
         free(table->metadata.columns);
         freeTree(table->index); // Free the B-tree index
+        free(table); // Free the table LAST
     }
 }
 
@@ -62,7 +74,7 @@ void free_table(Table *table) {
 void free_database(Database *db) {
     if (db) {
         for (int i = 0; i < db->table_count; i++) {
-            free_table(&db->tables[i]);
+            free_table(db->tables[i]); // Free each table
         }
         free(db->tables);
         free(db);
@@ -70,7 +82,7 @@ void free_database(Database *db) {
 }
 
 // Insert a row into the table
-bool insert_row(Table *table, int id, const char *name) {
+bool insert_row(Table *table, int id, const char *name, int age) {
     if (table->row_count >= table->capacity) {
         return false; // Table is full
     }
@@ -87,9 +99,13 @@ bool insert_row(Table *table, int id, const char *name) {
         fprintf(stderr, "Failed to allocate memory for row values\n");
         return false;
     }
-    for (int i = 0; i < table->metadata.column_count; i++) {
-        new_row->values[i] = NULL;
-    }
+
+    // Assign values for columns
+    new_row->values[0] = (char*)malloc(20 * sizeof(char)); // Assuming ID will fit in 20 characters
+    snprintf(new_row->values[0], 20, "%d", id);
+    new_row->values[1] = strdup(name);
+    new_row->values[2] = (char*)malloc(20 * sizeof(char)); // Assuming age will fit in 20 characters
+    snprintf(new_row->values[2], 20, "%d", age);
 
     // Update index
     table->index = insertNode(table->index, id);
